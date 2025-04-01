@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from bs4 import BeautifulSoup
 import requests
+from .gemini_api import get_gemini_summary
 
 def monument_search(request):
     return render(request, 'search_monument.html')
@@ -22,7 +23,14 @@ def scrape_data(request):
                     "titles": titles,
                 }
 
-                return render(request, "scraped_results.html", {"data": scraped_data, "url": url})
+                api_key = "AIzaSyCtglWBrix-q84vzTPy1xpVY3GY0b6PSM0"  
+                ai_data = get_gemini_summary(str(scraped_data))
+
+                if ai_data:
+                    return render(request, "scraped_results.html", {"ai_data": ai_data, "url": url})
+                else:
+                    return render(request, "scraped_results.html", {"data": scraped_data, "url": url})
+                
 
             except requests.exceptions.RequestException as e:
                 error_message = f"Error fetching URL: {e}"
