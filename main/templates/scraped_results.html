@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraper Results</title>
+</head>
+<body>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% if url %}
+            <p>URL: {{ url }}</p>
+        {% endif %}
+    {% elif data %}
+        <h1>Scraped Data from {{ url }}</h1>
+
+        {% for key, value in data.items %}
+            <h2>{{ key|capfirst }}:</h2>  {% if key == "paragraphs" %}
+                <ul>
+                    {% for paragraph in value %}
+                        <li>{{ paragraph }}</li>
+                    {% endfor %}
+                </ul>
+            {% elif key == "titles" %}
+                <ul>
+                    {% for title in value %}
+                        <li>{{ title }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>{{ value }}</p> {% endif %}
+        {% endfor %}
+
+    {% else %}
+        <h1>Enter URL to Scrape</h1>
+        <form action="/scrape/" method="post">
+            {% csrf_token %}
+            <label for="url">URL:</label>
+            <input type="text" id="url" name="url">
+            <button type="submit">Scrape</button>
+        </form>
+    {% endif %}
+</body>
+</html>
+

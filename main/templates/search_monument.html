@@ -7,9 +7,19 @@
 </head>
 <body>
     <h1>Search for a Monument</h1>
-    <form>
-        <input type="text" name="q" placeholder="Enter monument name">
+    <form action="/scrape/" method="post">
+        {% csrf_token %}
+        <input type="text" name="q" placeholder="Enter monument name" id="monumentNameInput">
+        <input type="hidden" name="url" id="monumentUrlInput">
         <button type="submit">Search</button>
     </form>
+
+    <script>
+        document.getElementById('monumentNameInput').addEventListener('input', function() {
+            const monumentName = this.value;
+            const monumentURL = `https://en.wikipedia.org/wiki/${monumentName.replace(' ', '_')}`; // Dynamic URL generation.
+            document.getElementById('monumentUrlInput').value = monumentURL;
+        });
+    </script>
 </body>
 </html>
