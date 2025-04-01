@@ -11,11 +11,18 @@
         {% if url %}
             <p>URL: {{ url }}</p>
         {% endif %}
+    {% elif ai_data %}
+        <h1>Summarized Data from AI</h1>
+        {% for title, summary in ai_data.items %}
+            <h2>{{ title }}</h2>
+            <p>{{ summary }}</p>
+        {% endfor %}
     {% elif data %}
         <h1>Scraped Data from {{ url }}</h1>
 
         {% for key, value in data.items %}
-            <h2>{{ key|capfirst }}:</h2>  {% if key == "paragraphs" %}
+            <h2>{{ key|capfirst }}:</h2>
+            {% if key == "paragraphs" %}
                 <ul>
                     {% for paragraph in value %}
                         <li>{{ paragraph }}</li>
@@ -28,7 +35,8 @@
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>{{ value }}</p> {% endif %}
+                <p>{{ value }}</p>
+            {% endif %}
         {% endfor %}
 
     {% else %}
@@ -42,4 +50,3 @@
     {% endif %}
 </body>
 </html>
-
