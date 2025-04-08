@@ -9,63 +9,54 @@ def get_gemini_summary(text):
     try:
         model = genai.GenerativeModel('gemini-1.5-pro-latest')
         prompt = f"""
-            Summarize the following text about a monument and organize it into these specific categories: 
-            - 'Overview': A brief summary of the monument.
-            - 'History': Key historical facts or events.
-            - 'Architecture': Details about design or construction.
-            - 'Location': Information about where it’s located.
-            Return the result as a valid JSON string (enclosed in ```json``` markers) with 'title' and 'summary' keys for each category. If a category isn’t applicable, include it with a summary of 'Not available'. Here’s the text: {text} 
-        Example output:
+        Summarize the following text about a monument, which comes from multiple websites (Wikipedia, ASI, and Incredible India). Organize it into these categories:
+        - 'Overview': A short summary of the monument.
+        - 'History': Important past events or facts.
+        - 'Architecture': How it looks or was built.
+        - 'Location': Where it is.
+        Make it clear, concise, and avoid repeating things. Return it as a valid JSON string in ```json``` markers. If a category isn’t clear, use 'Not available'. Here’s the text: {text}
+        Example:
         ```json
         {{
-            "Overview": "A brief summary",
-            "History": "Historical facts",
-            "Architecture": "Design details",
-            "Location": "Location info"
+            "Overview": "A famous monument",
+            "History": "Built long ago",
+            "Architecture": "Pretty design",
+            "Location": "In India"
         }}
-        """
+    """
         response = model.generate_content(prompt)
         ai_output = response.text
-        print("RAW API OUTPUT:",ai_output)
-        return parse_ai_response(ai_output) 
-        organized_data = parse_ai_response(ai_output)
+        print("RAW API Output:", ai_output)  # For checking
+        return parse_ai_response(ai_output)
+    except Exception as e:
+        print(f"Error with AI: {e}")
+        return None
 
-        return organized_data
+def parse_ai_response(ai_output):
+    try:
+        start_marker = "```json"         
+        end_marker = "```"
+        if start_marker in ai_output and end_marker in ai_output:
+            json_str = ai_output[ai_output.index(start_marker) + len(start_marker):ai_output.rindex(end_marker)].strip()
+            return json.loads(json_str)
+        
+        else:
+            return json.loads(ai_output)
+        
+    except json.JSONDecodeError as e:
+        print(f"Error reading AI’s answer: {e}")
+        print("Raw output:", ai_output)
+        return {
+            "Overview": "Summary not available",
+            "History": "Not available",
+            "Architecture": "Not available",
+            "Location": "Not available"
+        }
 
     except Exception as e:
         print(f"Error during Gemini API call: {e}")
         return None
 
-def parse_ai_response(ai_output):
-    """
-    Parses the AI's response to create a Python dictionary.
-
-    Args:
-        ai_output (str): The AI's text response.
-
-    Returns:
-        dict: A dictionary containing the summarized data.
-    """
-    try:
-        # Extract JSON content between ```json and ``` markers
-        start_marker = "```json"
-        end_marker = "```"
-        if start_marker in ai_output and end_marker in ai_output:
-            json_str = ai_output[ai_output.index(start_marker) + len(start_marker):ai_output.rindex(end_marker)].strip()
-            return json.loads(json_str)
-        else:
-            # If no markers, assume the whole response is JSON
-            return json.loads(ai_output)
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON from API response: {e}")
-        print("Raw output:", ai_output)
-        # Fallback: Return a default structure instead of raw_output
-        return {
-            "Overview": "Summary not available due to parsing error",
-            "History": "Not available",
-            "Architecture": "Not available",
-            "Location": "Not available"
-        }
 
 # Test the function (optional)
 if __name__ == "__main__":
@@ -76,8 +67,8 @@ if __name__ == "__main__":
     result = get_gemini_summary(test_text)
 
     if result:
-        print("API Response:")
-        print(result)
+        print("API Response:", result)
+
     else:
         print("API call failed.")
 
