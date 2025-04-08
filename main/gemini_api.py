@@ -4,28 +4,30 @@ import json
 GEMINI_API_KEY = "AIzaSyCtglWBrix-q84vzTPy1xpVY3GY0b6PSM0"
 
 def get_gemini_summary(text):
-    """
-    Summarizes and organizes text using the Gemini API.
-
-    Args:
-        text (str): The text to summarize.
-
-    Returns:
-        dict: A dictionary containing the summarized data.
-        None: If an error occurs.
-    """
-
     genai.configure(api_key=GEMINI_API_KEY)  # Use the declared API key
 
     try:
         model = genai.GenerativeModel('gemini-1.5-pro-latest')
-        prompt = f"Summarize the following text and create useful titles for each topic. Return the result as a JSON object with 'title' and 'summary' keys for each topic: {text}"
+        prompt = f"""
+            Summarize the following text about a monument and organize it into these specific categories: 
+            - 'Overview': A brief summary of the monument.
+            - 'History': Key historical facts or events.
+            - 'Architecture': Details about design or construction.
+            - 'Location': Information about where it’s located.
+            Return the result as a valid JSON string (enclosed in ```json``` markers) with 'title' and 'summary' keys for each category. If a category isn’t applicable, include it with a summary of 'Not available'. Here’s the text: {text} 
+        Example output:
+        ```json
+        {{
+            "Overview": "A brief summary",
+            "History": "Historical facts",
+            "Architecture": "Design details",
+            "Location": "Location info"
+        }}
+        """
         response = model.generate_content(prompt)
         ai_output = response.text
-
-        print("RAW API Output:")
-        print(ai_output)
-
+        print("RAW API OUTPUT:",ai_output)
+        return parse_ai_response(ai_output) 
         organized_data = parse_ai_response(ai_output)
 
         return organized_data
@@ -45,10 +47,25 @@ def parse_ai_response(ai_output):
         dict: A dictionary containing the summarized data.
     """
     try:
-        return json.loads(ai_output)
-    except json.JSONDecodeError:
-        print("Error decoding JSON from API response. Returning raw output.")
-        return {"raw_output": ai_output}
+        # Extract JSON content between ```json and ``` markers
+        start_marker = "```json"
+        end_marker = "```"
+        if start_marker in ai_output and end_marker in ai_output:
+            json_str = ai_output[ai_output.index(start_marker) + len(start_marker):ai_output.rindex(end_marker)].strip()
+            return json.loads(json_str)
+        else:
+            # If no markers, assume the whole response is JSON
+            return json.loads(ai_output)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON from API response: {e}")
+        print("Raw output:", ai_output)
+        # Fallback: Return a default structure instead of raw_output
+        return {
+            "Overview": "Summary not available due to parsing error",
+            "History": "Not available",
+            "Architecture": "Not available",
+            "Location": "Not available"
+        }
 
 # Test the function (optional)
 if __name__ == "__main__":
@@ -64,71 +81,3 @@ if __name__ == "__main__":
     else:
         print("API call failed.")
 
-    #Test model listing.
-    try:
-        for model in genai.list_models():
-            print(f"Model: {model.name}")
-            print(f"  Description: {model.description}")
-            print(f"  Supported Generation Methods: {model.supported_generation_methods}")
-    except Exception as e:
-        print(f"Error listing models: {e}")
-
-# def get_gemini_summary(text):
-#     """
-#     Summarizes and organizes text using the Gemini API.
-
-#     Args:
-#         text (str): The text to summarize.
-#         api_key (str): Your Gemini API key.
-
-#     Returns:
-#         dict: A dictionary containing the summarized data.
-#         None: If an error occurs.
-#     """
-#     genai.configure(api_key=GEMINI_API_KEY)
-
-#     for model in genai.list_models():
-#         print(f"Model: {model.name}")
-#         print(f"Description: {model.description}")
-#         print(f"Supported Generation Methods: {model.supported_generation_methods}")
-
-#     try:
-#         model = genai.GenerativeModel('gemini-pro')
-#         prompt = f"Summarize the following text and create useful titles for each topic: {text}"
-#         response = model.generate_content(prompt)
-#         ai_output = response.text
-        
-#         #changes made yash
-#         print("RAW API Output:")
-#         print(ai_output)
-
-#         organized_data = parse_ai_response(ai_output) 
-
-#         return organized_data
-
-#     except Exception as e:
-#         print(f"Error during Gemini API call: {e}")
-#         return None
-
-
-
-# def parse_ai_response(ai_output):
-#     """
-#     Parses the AI's response to create a Python dictionary.
-
-#     Args:
-#         ai_output (str): The AI's text response.
-
-#     Returns:
-#         dict: A dictionary containing the summarized data.
-#     """
-#     try:
-#         return json.loads(ai_output)
-#     except json.JSONDecodeError:
-#         print("Error decoding JSON from API response. Returning raw output.")
-#         return {"raw_output": ai_output}
-
-#     # This is a placeholder. You'll need to adapt this to your AI's response format.
-#     # Example:
-#     # return {"title1": "summary1", "title2": "summary2"}
-#     # return {"summary":"AI summary placeholder"} #Placeholder.

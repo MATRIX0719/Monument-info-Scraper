@@ -6,6 +6,26 @@ from .gemini_api import get_gemini_summary
 def monument_search(request):
     return render(request, 'search_monument.html')
 
+def organize_raw_data(scraped_data):
+    paragraphs = scraped_data["paragraphs"]
+    organized = {
+        "Overview": "Not available",
+        "History": "Not available", 
+        "Architecture": "Not available",
+        "Location": "Not available"
+    }
+
+    for p in paragraphs:
+        if any(word in p.lower() for word in ["built", "constructed", "design", "structure"]):
+            organized["Architecture"] = p
+        elif any(word in p.lower() for word in ["history", "founded", "year", "century"]):
+            organized["History"] = p
+        elif any(word in p.lower() for word in ["located", "city", "country", "place"]):
+            organized["Location"] = p
+        else:
+            organized["Overview"] = p
+    return organized
+
 def scrape_data(request):
     if request.method == "POST":
         url = request.POST.get('url')
@@ -27,11 +47,19 @@ def scrape_data(request):
                 ai_data = get_gemini_summary(str(scraped_data))
 
                 if ai_data:
-                    return render(request, "scraped_results.html", {"ai_data": ai_data, "url": url})
+                    return render(request, "scraped_results.html", {
+                        "ai_data": ai_data,  # Only pass the parsed data
+                        "url": url
+                    })
                 else:
-                    return render(request, "scraped_results.html", {"data": scraped_data, "url": url})
-                
+                    # Fallback for raw data
+                    organized_data = organize_raw_data(scraped_data)
+                    return render(request, "scraped_results.html", {
+                        "ai_data": organized_data,
+                        "url": url
+                    })
 
+                
             except requests.exceptions.RequestException as e:
                 error_message = f"Error fetching URL: {e}"
                 return render(request, "scraped_results.html", {"error": error_message, "url": url})

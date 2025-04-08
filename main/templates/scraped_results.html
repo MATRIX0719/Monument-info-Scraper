@@ -1,44 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Scraper Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 15px;
+        }
+        p {
+            line-height: 1.6;
+            color: #666;
+        }
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     {% if error %}
-        <p style="color: red;">{{ error }}</p>
+        <p class="error">{{ error }}</p>
         {% if url %}
-            <p>URL: {{ url }}</p>
+            <p>URL: <a href="{{ url }}">{{ url }}</a></p>
         {% endif %}
     {% elif ai_data %}
-        <h1>Summarized Data from AI</h1>
+        <h1>Monument Information from {{ url }}</h1>
         {% for title, summary in ai_data.items %}
             <h2>{{ title }}</h2>
             <p>{{ summary }}</p>
         {% endfor %}
-    {% elif data %}
-        <h1>Scraped Data from {{ url }}</h1>
-
-        {% for key, value in data.items %}
-            <h2>{{ key|capfirst }}:</h2>
-            {% if key == "paragraphs" %}
-                <ul>
-                    {% for paragraph in value %}
-                        <li>{{ paragraph }}</li>
-                    {% endfor %}
-                </ul>
-            {% elif key == "titles" %}
-                <ul>
-                    {% for title in value %}
-                        <li>{{ title }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>{{ value }}</p>
-            {% endif %}
-        {% endfor %}
-
     {% else %}
         <h1>Enter URL to Scrape</h1>
         <form action="/scrape/" method="post">
