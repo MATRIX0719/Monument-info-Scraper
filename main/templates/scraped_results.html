@@ -33,6 +33,12 @@
         {% endif %}
     {% elif ai_data %}
         <h1>Monument Information from {{ url }}</h1>
+        {% if image_url %}
+            <img src="{{ image_url }}" alt="Picture of the monument" style="max-width: 300px; height: auto;">
+            <!-- <p>Image URL: {{ image_url }}</p>  Show the address so we can check it -->
+        {% else %}
+            <p>No picture found!</p>
+        {% endif %}
         {% for title, summary in ai_data.items %}
             <h2>{{ title }}</h2>
             <p>{{ summary }}</p>

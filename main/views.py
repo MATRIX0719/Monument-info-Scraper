@@ -44,6 +44,7 @@ def scrape_data(request):
                 incredible_url = f"https://www.incredibleindia.org/content/incredible-india-v2/en/destinations/{monument_name.lower().replace(' ', '-')}.html"
                 urls = [wiki_url, asi_url, incredible_url]
                 all_scraped_data = []
+                main_image_url = None
 
                 for url in urls:
                     try:
@@ -52,22 +53,48 @@ def scrape_data(request):
                         soup = BeautifulSoup(response.content, "html.parser")
                         paragraphs = [p.text.strip() for p in soup.find_all("p")]
                         titles = [title.text.strip() for title in soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6"])]
+                        infobox = soup.find("table", class_="infobox")  # Look for the info box
+                        if infobox:  # If we find the box
+                            image = infobox.find("img")  # Get the first picture in the box
+                            if image and image.get("src"):
+                                img_url = image["src"]
+                                if img_url.startswith("/"):  # Fix short addresses
+                                    from urllib.parse import urljoin
+                                    img_url = urljoin(url, img_url)
+                                if img_url.startswith("http"):  # Make sure it’s a full web address
+                                    main_image_url = img_url
+                                    print(f"Found infobox image: {main_image_url}")
+                        # If no infobox image, try another way (backup)
+                        if not main_image_url:
+                            images = soup.find_all("img")
+                            for image in images:
+                                img_url = image.get("src")
+                                if (img_url and ".svg" not in img_url.lower() and "wiki" not in img_url.lower() and 
+                                    image.get("width", "0").isdigit() and int(image.get("width", "0")) > 100):
+                                    if img_url.startswith("/"):
+                                        from urllib.parse import urljoin
+                                        img_url = urljoin(url, img_url)
+                                    if img_url.startswith("http"):
+                                        main_image_url = img_url
+                                        print(f"Found backup image: {main_image_url}")
+                                        break
+
                         scraped_data = {"paragraphs": paragraphs, "titles": titles, "source": url}
                         all_scraped_data.append(scraped_data)
                         
-                        # ***CHANGE 2: Show what we found***
-                        # Print a message like “Wikipedia gave us 5 paragraphs!”
                         print(f"Scraped from {url}:")
                         print(f" - {len(paragraphs)} paragraphs")
                         print(f" - {len(titles)} titles")
-                        if paragraphs:  # If we got paragraphs, show the first one
-                            print(f" - First paragraph: {paragraphs[0][:100]}...")  # Just the first 100 letters
+                        if paragraphs:  
+                            print(f" - First paragraph: {paragraphs[0][:100]}...")  
                         else:
                             print(" - No paragraphs found!")
                         if titles:
                             print(f" - First title: {titles[0]}")
                         else:
                             print(" - No titles found!")
+                        if main_image_url and main_image_url == img_url:
+                            print(f" - Image URL: {main_image_url}")
                         print("---")  # A line to keep it neat
 
                     except requests.exceptions.RequestException:
@@ -95,8 +122,9 @@ def scrape_data(request):
 
                 if ai_data:
                     return render(request, "scraped_results.html", {
-                        "ai_data": ai_data,  # Only pass the parsed data
-                        "url": wiki_url
+                        "ai_data": ai_data,  
+                        "url": wiki_url,
+                        "image_url": main_image_url
                     })
                 else:
                     return render(request, "scraped_results.html", {
