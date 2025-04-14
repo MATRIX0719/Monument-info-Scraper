@@ -1,56 +1,44 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Scraper Results</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        h2 {
-            color: #555;
-            margin-top: 15px;
-        }
-        p {
-            line-height: 1.6;
-            color: #666;
-        }
-        .error {
-            color: red;
-        }
-    </style>
+    <meta-charset="UTF-8">
+    <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monument Results</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    {% if error %}
-        <p class="error">{{ error }}</p>
-        {% if url %}
-            <p>URL: <a href="{{ url }}">{{ url }}</a></p>
-        {% endif %}
-    {% elif ai_data %}
-        <h1>Monument Information from {{ url }}</h1>
-        {% if image_url %}
-            <img src="{{ image_url }}" alt="Picture of the monument" style="max-width: 300px; height: auto;">
-            <!-- <p>Image URL: {{ image_url }}</p>  Show the address so we can check it -->
+    
+    <header>
+        <h1>Monument Explorer</h1>
+        <p>Your search results</p>
+    </header>
+
+    <section class="monument-grid">
+        {% if error %}
+            <p class="no-results">{{ error }}</p>
+        {% elif ai_data %}
+            <div class="monument-card">
+                <img src="{{ image_url|default_if_none:'' }}" alt="Monument Image" id="monument-img">
+                <h3>{{ ai_data.Overview|default:'Unknown Monument' }}</h3>
+                {% for title, summary in ai_data.items %}
+                    {% if title != 'Overview' %}
+                        <h4>{{ title }}</h4>
+                        <p>{{ summary }}</p>
+                    {% endif %}
+                {% endfor %}
+                <a href="{% url 'home' %}" class="btn">Back to Home</a>
+            </div>
         {% else %}
-            <p>No picture found!</p>
+            <p class="no-results">No information found for this monument.</p>
         {% endif %}
-        {% for title, summary in ai_data.items %}
-            <h2>{{ title }}</h2>
-            <p>{{ summary }}</p>
-        {% endfor %}
-    {% else %}
-        <h1>Enter URL to Scrape</h1>
-        <form action="/scrape/" method="post">
-            {% csrf_token %}
-            <label for="url">URL:</label>
-            <input type="text" id="url" name="url">
-            <button type="submit">Scrape</button>
-        </form>
-    {% endif %}
+    </section>
+
+    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+            document.getElementById('monument-img').addEventListener('error', function() {
+            this.src = '{% static "images/placeholder.jpg" %}';
+        });
+    </script>
 </body>
 </html>

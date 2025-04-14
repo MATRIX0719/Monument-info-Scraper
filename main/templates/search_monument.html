@@ -1,25 +1,44 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Monument</title>
+    <meta-charset="UTF-8">
+    <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monument Explorer</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <h1>Search for a Monument</h1>
-    <form action="/scrape/" method="post">
-        {% csrf_token %}
-        <input type="text" name="q" placeholder="Enter monument name" id="monumentNameInput">
-        <input type="hidden" name="url" id="monumentUrlInput">
-        <button type="submit">Search</button>
-    </form>
 
-    <script>
-        document.getElementById('monumentNameInput').addEventListener('input', function() {
-            const monumentName = this.value;
-            const monumentURL = `https://en.wikipedia.org/wiki/${monumentName.replace(' ', '_')}`; // Dynamic URL generation.
-            document.getElementById('monumentUrlInput').value = monumentURL;
-        });
-    </script>
+    <header>
+        <h1>Monument Explorer</h1>
+        <p>Discover the beauty and history of iconic monuments</p>
+    </header>
+
+
+    <section class="search-container">
+        <form action="{% url 'scrape' %}" method="POST">
+            {% csrf_token %}
+            <input type="text" name="monument" placeholder="Enter monument name..." required>
+            <button type="submit">Search</button>
+        </form>
+    </section>
+
+
+    <section class="monument-grid">
+        <div class="monument-card">
+            <img src="{% static 'images/taj-mahal.jpg' %}" alt="Taj Mahal">
+            <h3>Taj Mahal</h3>
+            <p>A UNESCO World Heritage Site built by Shah Jahan in memory of his wife Mumtaz Mahal.</p>
+            <a href="#" class="btn">View Details</a>
+        </div>
+        <div class="monument-card">
+            <img src="{% static 'images/qutub-minar.jpg' %}" alt="Qutub Minar">
+            <h3>Qutub Minar</h3>
+            <p>The tallest brick minaret in the world, located in Delhi, India.</p>
+            <a href="#" class="btn">View Details</a>
+        </div>
+    </section>
+
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
