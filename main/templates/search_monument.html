@@ -3,9 +3,10 @@
 <html lang="en">
 <head>
     <meta-charset="UTF-8">
-    <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monument Explorer</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -13,7 +14,6 @@
         <h1>Monument Explorer</h1>
         <p>Discover the beauty and history of iconic monuments</p>
     </header>
-
 
     <section class="search-container">
         <form action="{% url 'scrape' %}" method="POST">
@@ -23,20 +23,24 @@
         </form>
     </section>
 
-
     <section class="monument-grid">
         <div class="monument-card">
             <img src="{% static 'images/taj-mahal.jpg' %}" alt="Taj Mahal">
-            <h3>Taj Mahal</h3>
-            <p>A UNESCO World Heritage Site built by Shah Jahan in memory of his wife Mumtaz Mahal.</p>
-            <a href="#" class="btn">View Details</a>
+            <div class="monument-card-content">
+                <h3>Taj Mahal</h3>
+                <p>An ivory-white marble mausoleum on the southern bank of the Yamuna river in the Indian city of Agra.</p>
+                <a href="#" class="btn">View Details</a>
+            </div>
         </div>
         <div class="monument-card">
             <img src="{% static 'images/qutub-minar.jpg' %}" alt="Qutub Minar">
-            <h3>Qutub Minar</h3>
-            <p>The tallest brick minaret in the world, located in Delhi, India.</p>
-            <a href="#" class="btn">View Details</a>
+            <div class="monument-card-content">
+                <h3>Qutub Minar</h3>
+                <p>A towering 73-meter brick minaret, a UNESCO World Heritage Site in Delhi, India.</p>
+                <a href="#" class="btn">View Details</a>
+            </div>
         </div>
+
     </section>
 
     <script src="{% static 'js/script.js' %}"></script>

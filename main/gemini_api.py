@@ -4,7 +4,7 @@ import json
 GEMINI_API_KEY = "AIzaSyCtglWBrix-q84vzTPy1xpVY3GY0b6PSM0"
 
 def get_gemini_summary(text):
-    genai.configure(api_key=GEMINI_API_KEY)  # Use the declared API key
+    genai.configure(api_key=GEMINI_API_KEY)  
 
     try:
         model = genai.GenerativeModel('gemini-1.5-pro-latest')
@@ -26,7 +26,7 @@ def get_gemini_summary(text):
     """
         response = model.generate_content(prompt)
         ai_output = response.text
-        print("RAW API Output:", ai_output)  # For checking
+        print("RAW API Output:", ai_output)  
         return parse_ai_response(ai_output)
     except Exception as e:
         print(f"Error with AI: {e}")
@@ -57,8 +57,6 @@ def parse_ai_response(ai_output):
         print(f"Error during Gemini API call: {e}")
         return None
 
-
-# Test the function (optional)
 if __name__ == "__main__":
     test_text = """
     This is some test text. It contains information about a monument. The monument is called the Taj Mahal. It is located in Agra, India. It was built by Shah Jahan in memory of his wife Mumtaz Mahal. It is made of white marble.
