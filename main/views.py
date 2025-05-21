@@ -48,6 +48,7 @@ def scrape_data(request):
                 main_image_url = None
 
                 for url in urls:
+                    source_priority = "wikipedia" in url
                     try:
                         response = requests.get(url, verify=certifi.where(), timeout=5)
                         response.raise_for_status()
@@ -62,9 +63,10 @@ def scrape_data(request):
                                 if img_url.startswith("/"):
                                     from urllib.parse import urljoin
                                     img_url = urljoin(url, img_url)
-                                if img_url.startswith("http"):
-                                    main_image_url = img_url
-                                    print(f"Found infobox image: {main_image_url}")
+                                if img_url.startswith("http") and not main_image_url:
+                                    if source_priority:
+                                        main_image_url = img_url
+                                        print(f"Found infobox image: {main_image_url}")
                         if not main_image_url:
                             images = soup.find_all("img")
                             for image in images:
@@ -74,7 +76,7 @@ def scrape_data(request):
                                     if img_url.startswith("/"):
                                         from urllib.parse import urljoin
                                         img_url = urljoin(url, img_url)
-                                    if img_url.startswith("http"):
+                                    if img_url.startswith("http") and not main_image_url:
                                         main_image_url = img_url
                                         print(f"Found backup image: {main_image_url}")
                                         break

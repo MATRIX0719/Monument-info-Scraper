@@ -7,7 +7,7 @@ def get_gemini_summary(text):
     genai.configure(api_key=GEMINI_API_KEY)  
 
     try:
-        model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         prompt = f"""
         Summarize the following text about a monument, which comes from multiple websites (Wikipedia, ASI, and Incredible India). Organize it into these categories:
         - 'Overview': A short summary of the monument.
