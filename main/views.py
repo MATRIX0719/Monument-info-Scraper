@@ -36,11 +36,9 @@ def organize_raw_data(scraped_data):
 
 def scrape_data(request):
     if request.method == "POST":
-        # Get monument name from form
         monument_name = request.POST.get('monument')
         if monument_name:
             try:
-                # Construct URLs
                 wiki_url = f"https://en.wikipedia.org/wiki/{monument_name.replace(' ', '_')}"
                 asi_url = f"https://asi.nic.in/{monument_name.lower().replace(' ', '-')}/"
                 incredible_url = f"https://www.incredibleindia.org/content/incredible-india-v2/en/destinations/{monument_name.lower().replace(' ', '-')}.html"
@@ -93,13 +91,10 @@ def scrape_data(request):
 
                     except requests.exceptions.RequestException as e:
                         print(f"Couldn’t get {url}: {e}")
-
-                # Combine scraped text
                 combined_text = ""
                 for data in all_scraped_data:
                     combined_text += " ".join(data["paragraphs"]) + " " + " ".join(data["titles"]) + " "
 
-                # Clean text
                 sentences = sent_tokenize(combined_text)
                 if len(sentences) > 1:
                     vectorizer = TfidfVectorizer().fit_transform(sentences)
@@ -112,11 +107,10 @@ def scrape_data(request):
                 else:
                     cleaned_text = combined_text
 
-                # Get AI summary
-                ai_data = get_gemini_summary(cleaned_text)
-                print("Raw ai_data:", ai_data)  # Debug output
 
-                # Ensure ai_data is a dict
+                ai_data = get_gemini_summary(cleaned_text)
+                print("Raw ai_data:", ai_data)
+
                 if isinstance(ai_data, str):
                     try:
                         ai_data = json.loads(ai_data)
