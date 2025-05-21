@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from .gemini_api import get_gemini_summary
 import json
+import certifi
 
 nltk.download('punkt')  
 nltk.download('punkt_tab')
@@ -48,7 +49,7 @@ def scrape_data(request):
 
                 for url in urls:
                     try:
-                        response = requests.get(url, timeout=5)
+                        response = requests.get(url, verify=certifi.where(), timeout=5)
                         response.raise_for_status()
                         soup = BeautifulSoup(response.content, "html.parser")
                         paragraphs = [p.text.strip() for p in soup.find_all("p")]
