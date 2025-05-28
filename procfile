@@ -1,0 +1,1 @@
+web: gunicorn Monumnet_info_scrapper.wsgi

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import pymongo
+import certifi
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +28,7 @@ SECRET_KEY = 'django-insecure-r82^^bw5-#z*s&o(p=^^bgu6bn90f@&w62b=fyd&jfy^b22+8_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -133,3 +135,23 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyCtglWBrix-q84vzTPy1xpVY3GY0b
 
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['https://*.lovableproject.com']
+
+MONGO_URI = "mongodb+srv://honey:Honey117@cluster0.5evclo3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_DB_NAME = "monumentsDB"
+
+import dj_database_url
+from decouple import config
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
+
+# Whitenoise settings
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+# Heroku DB setup
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
+# Secret key
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
+

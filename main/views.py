@@ -12,8 +12,6 @@ import certifi
 nltk.download('punkt')  
 nltk.download('punkt_tab')
 
-def monument_search(request):
-    return render(request, 'search_monument.html')
 
 def organize_raw_data(scraped_data):
     paragraphs = scraped_data["paragraphs"]
@@ -34,6 +32,9 @@ def organize_raw_data(scraped_data):
         else:
             organized["Overview"] = p
     return organized
+
+def monument_search(request):
+    return render(request, "search_monument.html")
 
 def scrape_data(request):
     if request.method == "POST":

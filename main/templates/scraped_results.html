@@ -15,12 +15,19 @@
         <p class="lead">Your search results</p>
     </header>
 
-    <div class="container py-4">
+    {% if answer %}
+        <div>
+            <h3>Answer</h3>
+            <p>{{answer}}</p>
+        </div>
+    {% endif %}
+
+    <!-- <div class="container py-4">
         {% if error %}
             <div class="alert alert-danger text-center">{{ error }}</div>
         {% elif ai_data %}
             <div class="card shadow mx-auto" style="max-width: 800px;">
-                <img src="{{ image_url|default:'' }}" alt="Monument Image" class="card-img-top" id="monument-img">
+                <img src="{{ image_url|default:'/static/images/placeholder.jpg' }}" alt="Monument Image" class="card-img-top" id="monument-img">
                 <div class="card-body">
                     <h3 class="card-title text-primary">{{ ai_data.Overview|default:'Unknown Monument' }}</h3>
                     <hr>
@@ -36,7 +43,7 @@
         {% else %}
             <div class="alert alert-warning text-center">No information found for this monument.</div>
         {% endif %}
-    </div>
+    </div> -->
 
     <script>
         document.getElementById('monument-img').addEventListener('error', function () {
