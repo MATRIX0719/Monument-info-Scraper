@@ -18,7 +18,7 @@
     <section class="container my-4">
         <form action="{% url 'scrape' %}" method="POST" class="d-flex justify-content-center gap-2">
             {% csrf_token %}
-            <input type="text" name="query" class="form-control w-50" placeholder="Enter monument name..." required>
+            <input type="text" name="monument" class="form-control w-50" placeholder="Enter monument name..." required>
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
     </section>

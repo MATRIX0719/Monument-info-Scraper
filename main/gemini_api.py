@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import json
 
-GEMINI_API_KEY = "AIzaSyCtglWBrix-q84vzTPy1xpVY3GY0b6PSM0"
+GEMINI_API_KEY = "AIzaSyDJGYwWtXCA3uFoB72nKJ5zih8_Ebmrb60"
 
 def get_gemini_summary(text):
     genai.configure(api_key=GEMINI_API_KEY)  
