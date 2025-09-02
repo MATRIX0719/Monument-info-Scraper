@@ -3,70 +3,69 @@ import json
 
 GEMINI_API_KEY = "AIzaSyDJGYwWtXCA3uFoB72nKJ5zih8_Ebmrb60"
 
-def get_gemini_summary(text):
-    genai.configure(api_key=GEMINI_API_KEY)  
-
-    try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        prompt = f"""
-        Summarize the following text about a monument, which comes from multiple websites (Wikipedia, ASI, and Incredible India). Organize it into these categories:
-        - 'Overview': A short summary of the monument.
-        - 'History': Important past events or facts.
-        - 'Architecture': How it looks or was built.
-        - 'Location': Where it is.
-        Make it clear, concise, and avoid repeating things. Return it as a valid JSON string in ```json``` markers. If a category isn’t clear, use 'Not available'. Here’s the text: {text}
-        Example:
-        ```json
-        {{
-            "Overview": "A famous monument",
-            "History": "Built long ago",
-            "Architecture": "Pretty design",
-            "Location": "In India"
-        }}
-    """
-        response = model.generate_content(prompt)
-        ai_output = response.text
-        print("RAW API Output:", ai_output)  
-        return parse_ai_response(ai_output)
-    except Exception as e:
-        print(f"Error with AI: {e}")
-        return None
-
-def parse_ai_response(ai_output):
-    try:
-        start_marker = "```json"         
-        end_marker = "```"
-        if start_marker in ai_output and end_marker in ai_output:
-            json_str = ai_output[ai_output.index(start_marker) + len(start_marker):ai_output.rindex(end_marker)].strip()
-            return json.loads(json_str)
-        
-        else:
-            return json.loads(ai_output)
-        
-    except json.JSONDecodeError as e:
-        print(f"Error reading AI’s answer: {e}")
-        print("Raw output:", ai_output)
+def get_gemini_summary(text, monument_name=""):
+    genai.configure(api_key=GEMINI_API_KEY)
+    
+    if not text or text.strip() == "{}":
         return {
-            "Overview": "Summary not available",
+            "Overview": "No summary available",
             "History": "Not available",
             "Architecture": "Not available",
             "Location": "Not available"
         }
 
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
+
+        prompt = f"""
+        You are an expert on Indian monuments.
+        You are given scraped data in JSON format about the monument: "{monument_name}".
+
+        Your task:
+        - Summarize ONLY details about "{monument_name}".
+        - Do not mention other monuments.
+        - Create a JSON object with the following keys:
+          - "Overview": A short summary.
+          - "History": Past events, dates, and people.
+          - "Architecture": Structural details, style, and materials.
+          - "Location": The monument's location (city, state, country).
+        - Be concise, factual, and avoid repetition.
+        - If information for a category is missing, use "Not available".
+        
+        Return ONLY the valid JSON object. Do not include any extra text, code fences (```json), or explanations.
+
+        Text to analyze:
+        {text}
+        """
+        
+        response = model.generate_content(prompt)
+        ai_output = response.text
+        
+        
+        try:
+            if ai_output.startswith("```json"):
+                json_str = ai_output.strip().removeprefix("```json").removesuffix("```").strip()
+                return json.loads(json_str)
+            else:
+                return json.loads(ai_output.strip())
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error: {e}")
+            print(f"AI Output: {ai_output}")
+            return None 
+
     except Exception as e:
-        print(f"Error during Gemini API call: {e}")
+        print(f"Error with AI: {e}")
         return None
 
 if __name__ == "__main__":
     test_text = """
-    This is some test text. It contains information about a monument. The monument is called the Taj Mahal. It is located in Agra, India. It was built by Shah Jahan in memory of his wife Mumtaz Mahal. It is made of white marble.
+    {
+        "Overview": "The Taj Mahal is a white marble mausoleum located in Agra, India.",
+        "History": "It was commissioned in 1632 by Mughal emperor Shah Jahan to house the tomb of his wife Mumtaz Mahal.",
+        "Architecture": "The Taj Mahal combines elements from Islamic, Persian, and Indian architectural styles.",
+        "Location": "Agra, India"
+    }
     """
-
-    result = get_gemini_summary(test_text)
-
-    if result:
-        print("API Response:", result)
-
-    else:
-        print("API call failed.")
-
+    
+    result = get_gemini_summary(test_text, "Taj Mahal")
+    print("API Response:", result)
